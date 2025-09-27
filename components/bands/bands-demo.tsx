@@ -24,12 +24,12 @@ interface DemoEvent {
 }
 
 const demoPrompts = [
-  "Purple Crew → Dance battle in 30s",
-  "Yellow Crew → Mirror Purple Crew",
-  "Everyone in Blue → Start a conga line!",
-  "Red Crew → High-five every Green Crew you see",
-  "Green Crew → Find someone wearing Pink",
-  "All crews → Freeze dance when music stops",
+  "Outdoor meetup sync → Sunset stretch in 2 minutes",
+  "Festival wave → East Stage crews glow cyan on the drop",
+  "Conference mixer → Find your workshop partner using band colour",
+  "Campus night market → Scan for sponsor scavenger clue",
+  "VIP lounge → Pulse amber when cocktail orders are ready",
+  "Club takeover → All crews freeze on beat drop",
 ]
 
 const crewColors = [
@@ -53,6 +53,10 @@ export function BandsDemo() {
   })
   const [currentPrompt, setCurrentPrompt] = useState("")
   const [isDJSyncing, setIsDJSyncing] = useState(false)
+
+  const computeWaitTime = (capacity: number) => {
+    return Math.max(2, Math.round((capacity - 40) / 8) + 4)
+  }
 
   const addEvent = (event: Omit<DemoEvent, "id" | "timestamp">) => {
     const newEvent: DemoEvent = {
@@ -83,24 +87,32 @@ export function BandsDemo() {
       crewId: newCrew.id,
     })
 
+    setVenueStats((prev) => ({
+      ...prev,
+      waypointGroups: prev.waypointGroups + 1,
+    }))
+
     setNewCrewName("")
     setSelectedColor("")
   }
 
   const simulateGateTap = (crew: Crew) => {
     const colorName = crewColors.find((c) => c.value === crew.color)?.name
-    addEvent({
-      type: "GATE_TAP",
-      message: `${colorName} Crew "${crew.name}" tapped in - Welcome message displayed!`,
-      crewId: crew.id,
+    setVenueStats((prev) => {
+      const updatedCapacity = Math.min(99, prev.capacity + 1)
+      const newWait = computeWaitTime(updatedCapacity)
+      addEvent({
+        type: "GATE_TAP",
+        message: `Welcome, ${colorName} Crew! Capacity ${updatedCapacity}% • Wait ${newWait}m`,
+        crewId: crew.id,
+      })
+      return {
+        ...prev,
+        capacity: updatedCapacity,
+        waitTime: newWait,
+        waypointGroups: prev.waypointGroups + 1,
+      }
     })
-
-    // Update venue stats
-    setVenueStats((prev) => ({
-      ...prev,
-      capacity: Math.min(95, prev.capacity + Math.floor(Math.random() * 5) + 3),
-      waypointGroups: prev.waypointGroups + 1,
-    }))
   }
 
   const startIcebreaker = () => {
@@ -119,7 +131,7 @@ export function BandsDemo() {
     setIsDJSyncing(true)
     addEvent({
       type: "DJ_SYNC",
-      message: "DJ sync activated - All bands pulsing to the beat!",
+      message: "DJ sync activated — bands locked to the beat",
     })
 
     setTimeout(() => setIsDJSyncing(false), 3000)
@@ -135,7 +147,7 @@ export function BandsDemo() {
 
     addEvent({
       type: "MERGE_CREWS",
-      message: `${color1Name} Crew and ${color2Name} Crew merged → Rainbow glow activated!`,
+      message: `${color1Name} + ${color2Name} crews merged → Rainbow glow on deck`,
     })
 
     // Update first crew to rainbow effect
@@ -167,6 +179,10 @@ export function BandsDemo() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="rounded-xl border border-border/40 bg-background/60 px-4 py-3 text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Quick math:</span> $40 one-time purchase covers reusable
+                  bands, reader puck, dashboards, and support. Toggle the controls below to see it in action.
+                </div>
                 {/* Create Crew */}
                 <div className="space-y-3">
                   <Label>Create a Crew</Label>
@@ -267,14 +283,36 @@ export function BandsDemo() {
                 <CardTitle>Venue Display</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 p-6 rounded-lg text-center">
-                  <h3 className="font-comfortaa text-2xl font-bold mb-2">Welcome to the Club!</h3>
-                  {events.length > 0 && events[0].type === "GATE_TAP" && (
-                    <p className="text-accent animate-pulse">{events[0].message.split(" - ")[1]}</p>
-                  )}
+                <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 p-6 rounded-lg text-left space-y-4">
+                  <div>
+                    <h3 className="font-comfortaa text-2xl font-bold">Venue Console</h3>
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                      Instant feed • capacity • safety
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 text-center text-sm">
+                    <div className="rounded-2xl border border-border/40 bg-background/40 p-3">
+                      <div className="text-xl font-semibold text-accent">{venueStats.capacity}%</div>
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Capacity</p>
+                    </div>
+                    <div className="rounded-2xl border border-border/40 bg-background/40 p-3">
+                      <div className="text-xl font-semibold text-accent">{venueStats.waitTime}m</div>
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Wait</p>
+                    </div>
+                    <div className="rounded-2xl border border-border/40 bg-background/40 p-3">
+                      <div className="text-xl font-semibold text-accent">{venueStats.waypointGroups}</div>
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Crews inside</p>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-accent/40 bg-accent/15 p-4 text-sm">
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground/80">Last signal</p>
+                    <p className="mt-2 font-medium text-foreground">
+                      {events[0]?.message ?? "Spin up a crew to see live signals."}
+                    </p>
+                  </div>
                   {currentPrompt && (
-                    <div className="mt-4 p-3 bg-accent/20 rounded border border-accent/40">
-                      <p className="text-accent font-medium animate-pulse">{currentPrompt}</p>
+                    <div className="rounded-2xl border border-accent/40 bg-accent/10 p-3 text-xs uppercase tracking-[0.25em] text-accent">
+                      {currentPrompt}
                     </div>
                   )}
                 </div>

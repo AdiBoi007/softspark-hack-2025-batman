@@ -14,20 +14,24 @@ export function BandsHero() {
       <div className="container">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
           <div>
-            <h1 className="font-comfortaa text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">Waypoint Bands</h1>
-            <p className="mt-6 text-xl text-muted-foreground">Make nights visible.</p>
+            <h1 className="font-comfortaa text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+              Waypoint Bands: Plug-&-Play Crowd Magic
+            </h1>
+            <p className="mt-6 text-xl text-muted-foreground">
+              Festivals, campus fairs, beach meetups, thrift markets — handheld in minutes, priced to slip into any budget.
+            </p>
             <p className="mt-4 text-lg text-muted-foreground">
-              Colors, tap-in, live games. Smart wearable bands that sync your group's color, handle NFC venue entry, and
-              power interactive experiences.
+              The band kit ships ready with NFC entry, crew lighting, live stats, and sponsor moments. No bulky hardware, no
+              hidden costs: a single $40 purchase powers every experience you run.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={scrollToDemo}>
-                Run Live Demo
+                See the $40 kit demo
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <a href="#features">See Features</a>
+                <a href="#features">Download pricing kit</a>
               </Button>
             </div>
           </div>

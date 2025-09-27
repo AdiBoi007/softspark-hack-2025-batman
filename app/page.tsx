@@ -2,21 +2,19 @@ import { Nav } from "@/components/nav"
 import { Footer } from "@/components/footer"
 import { Hero } from "@/components/hero"
 import { SafetyBar } from "@/components/safety-bar"
-import { DiscoverCarousel } from "@/components/discover-carousel"
-import { BlindDateSection } from "@/components/blind-date-section"
-import { FriendsPreview } from "@/components/friends-preview"
-import { BandsTeaser } from "@/components/bands-teaser"
 import { TrustSafety } from "@/components/trust-safety"
-import { SocialProof } from "@/components/social-proof"
 import { FinalCTA } from "@/components/final-cta"
-import { EnhancedFeatures } from "@/components/enhanced-features"
-import { PremiumStats } from "@/components/premium-stats"
-import { PremiumTestimonials } from "@/components/premium-testimonials"
-import { AdvancedVenueMap } from "@/components/advanced-venue-map"
-import { PremiumCarousel } from "@/components/premium-carousel"
-import { CircularTechDiagram } from "@/components/circular-tech-diagram"
-import { EnhancedHowItWorks } from "@/components/enhanced-how-it-works"
-import { RotatingVenueStats } from "@/components/rotating-venue-stats"
+import { TrendingGrid } from "@/components/home/trending-grid"
+import { SmartJourneysCarousel } from "@/components/home/smart-journeys-carousel"
+import { ModeSwitchboard } from "@/components/home/mode-switchboard"
+import { ImmersiveGallery } from "@/components/home/immersive-gallery"
+import { InteractiveFlowDiagram } from "@/components/interactive-flow-diagram"
+import { CitySignalPanel } from "@/components/home/city-signal-panel"
+import { DiscoverCrewsSection } from "@/components/home/discover-crews"
+import { FriendsPlanner } from "@/components/home/friends-planner"
+import { QuickActions } from "@/components/home/quick-actions"
+import { WaypointUniTeaser } from "@/components/home/waypoint-uni-teaser"
+import { trendingByCategory, friendsTemplates } from "@/lib/waypoint-data"
 
 export default function HomePage() {
   return (
@@ -25,20 +23,17 @@ export default function HomePage() {
       <main>
         <Hero />
         <SafetyBar />
-        <PremiumStats />
-        <CircularTechDiagram />
-        <EnhancedHowItWorks />
-        <EnhancedFeatures />
-        <RotatingVenueStats />
-        <PremiumCarousel />
-        <DiscoverCarousel />
-        <AdvancedVenueMap />
-        <BlindDateSection />
-        <FriendsPreview />
-        <BandsTeaser />
-        <PremiumTestimonials />
+        <TrendingGrid categories={trendingByCategory} />
+        <SmartJourneysCarousel />
+        <InteractiveFlowDiagram />
+        <ImmersiveGallery />
+        <ModeSwitchboard />
+        <CitySignalPanel />
+        <DiscoverCrewsSection />
+        <FriendsPlanner templates={friendsTemplates} />
+        <QuickActions />
+        <WaypointUniTeaser />
         <TrustSafety />
-        <SocialProof />
         <FinalCTA />
       </main>
       <Footer />

@@ -6,7 +6,17 @@ import { Progress } from "@/components/ui/progress"
 import { TrendingUp, Users, Heart, MapPin, Clock } from "lucide-react"
 import { useEffect, useState } from "react"
 
-const stats = [
+type PlatformStat = {
+  label: string
+  value: number
+  change: string
+  icon: typeof Users
+  color: string
+  gradient: string
+  suffix?: string
+}
+
+const stats: PlatformStat[] = [
   {
     label: "Active Users",
     value: 12847,
@@ -33,7 +43,8 @@ const stats = [
   },
   {
     label: "Avg Response Time",
-    value: "2.3s",
+    value: 2.3,
+    suffix: "s",
     change: "-12%",
     icon: Clock,
     color: "text-green-500",
@@ -46,26 +57,25 @@ export function PremiumStats() {
 
   useEffect(() => {
     stats.forEach((stat, index) => {
-      if (typeof stat.value === "number") {
-        let current = 0
-        const increment = stat.value / 50
-        const timer = setInterval(() => {
-          current += increment
-          if (current >= stat.value) {
-            current = stat.value
-            clearInterval(timer)
-          }
-          setAnimatedValues((prev) => ({ ...prev, [stat.label]: Math.floor(current) }))
-        }, 30)
+      let current = 0
+      const decimals = stat.suffix ? 1 : 0
+      const increment = stat.value / 50
+      const timer = setInterval(() => {
+        current += increment
+        if (current >= stat.value) {
+          current = stat.value
+          clearInterval(timer)
+        }
+        setAnimatedValues((prev) => ({ ...prev, [stat.label]: Number(current.toFixed(decimals)) }))
+      }, 30)
 
-        setTimeout(
-          () => {
-            clearInterval(timer)
-            setAnimatedValues((prev) => ({ ...prev, [stat.label]: stat.value }))
-          },
-          index * 200 + 1500,
-        )
-      }
+      setTimeout(
+        () => {
+          clearInterval(timer)
+          setAnimatedValues((prev) => ({ ...prev, [stat.label]: Number(stat.value.toFixed(decimals)) }))
+        },
+        index * 200 + 1500,
+      )
     })
   }, [])
 
@@ -82,7 +92,12 @@ export function PremiumStats() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-center items-center max-w-6xl mx-auto">
           {stats.map((stat, index) => {
             const Icon = stat.icon
-            const animatedValue = animatedValues[stat.label] ?? (typeof stat.value === "number" ? 0 : stat.value)
+            const animatedValue = animatedValues[stat.label] ?? 0
+            const displayValue = animatedValue.toLocaleString(undefined, {
+              minimumFractionDigits: stat.suffix ? 1 : 0,
+              maximumFractionDigits: stat.suffix ? 1 : 0,
+            })
+            const progressValue = stat.value === 0 ? 0 : Math.min(100, (animatedValue / stat.value) * 100)
 
             return (
               <Card
@@ -103,13 +118,12 @@ export function PremiumStats() {
 
                   <div className="space-y-2">
                     <p className="text-2xl font-bold font-mono">
-                      {typeof animatedValue === "number" ? animatedValue.toLocaleString() : animatedValue}
+                      {displayValue}
+                      {stat.suffix}
                     </p>
                     <p className="text-sm text-muted-foreground">{stat.label}</p>
 
-                    {typeof stat.value === "number" && (
-                      <Progress value={(animatedValue / stat.value) * 100} className="h-1 mt-3" />
-                    )}
+                    <Progress value={progressValue} className="h-1 mt-3" />
                   </div>
 
                   {/* Animated background glow */}

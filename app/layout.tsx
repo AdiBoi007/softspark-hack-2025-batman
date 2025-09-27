@@ -5,6 +5,7 @@ import { GeistSans } from "geist/font/sans"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { Suspense } from "react"
+import { Toaster } from "@/components/ui/sonner"
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -13,9 +14,10 @@ const comfortaa = Comfortaa({
 })
 
 export const metadata: Metadata = {
-  title: "Waypoint - Tonight, sorted.",
-  description: "Plan with friends, join a curated crew, or go on a blind date — AI plans it, you just show up.",
-  generator: "v0.app",
+  title: "Waypoint — Connection Engine",
+  description:
+    "Do more, together. Plan solo, meet a new crew, or go with friends—across nightlife, beaches, hikes, cafés, events, and beyond.",
+  generator: "Waypoint",
 }
 
 export default function RootLayout({
@@ -29,6 +31,7 @@ export default function RootLayout({
         <Suspense>
           {children}
           <Analytics />
+          <Toaster richColors position="bottom-center" />
         </Suspense>
       </body>
     </html>

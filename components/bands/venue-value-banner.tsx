@@ -5,23 +5,23 @@ import { TrendingUp, Users, BarChart, Megaphone } from "lucide-react"
 const benefits = [
   {
     icon: TrendingUp,
-    title: "Faster doors",
-    description: "Reduced friction at entry, faster throughput",
+    title: "Launch in under an hour",
+    description: "Self install, no AV crew, no venue rewiring. A single $40 purchase covers bands, reader puck, dashboards, and shipping.",
   },
   {
     icon: Users,
-    title: "Higher engagement",
-    description: "Interactive games keep people energized",
+    title: "Do more with tiny teams",
+    description: "Run beach pop-ups, club residencies, campus nights, and weekender hikes with the same reusable kit.",
   },
   {
     icon: BarChart,
-    title: "Real-time data",
-    description: "Live crowding, demographics, engagement insights",
+    title: "Proof of impact on tap",
+    description: "Real-time density, spend, and dwell time reports to secure sponsors and repeat budgets.",
   },
   {
     icon: Megaphone,
-    title: "Marketing moments",
-    description: "Welcome messages, targeted promotions",
+    title: "Monetise gently",
+    description: "Bands unlock partner perks, scavenger hunts, or local deals without printing or payroll costs.",
   },
 ]
 
@@ -32,10 +32,10 @@ export function VenueValueBanner() {
         <div className="mx-auto max-w-2xl text-center">
           <Badge className="mb-4 bg-accent/20 text-accent text-lg px-4 py-2">Venue Benefits</Badge>
           <h2 className="font-comfortaa text-3xl font-bold tracking-tight sm:text-4xl">
-            Transform your venue operations
+            Premium energy, thrift-store pricing
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Automated check-in, engagement boost, data insights, and marketing moments
+            Most crews recoup the $40 kit with one sponsor shout-out. We keep the back-of-house effortless so you can run more nights.
           </p>
         </div>
 

@@ -5,16 +5,21 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu } from "lucide-react"
 import { useState } from "react"
+import { WaitlistDialog } from "@/components/waitlist-dialog"
 
 export function Nav() {
   const [isOpen, setIsOpen] = useState(false)
+  const [waitlistOpen, setWaitlistOpen] = useState(false)
 
   const navItems = [
-    { href: "/friends", label: "Friends" },
+    { href: "/explore", label: "Explore" },
+    { href: "/solo", label: "Solo" },
     { href: "/discover", label: "Discover" },
-    { href: "/blind-date", label: "Blind Date" },
+    { href: "/friends", label: "Friends" },
+    { href: "/assistant", label: "AI" },
+    { href: "/demo", label: "Demo" },
+    { href: "/uni", label: "Uni" },
     { href: "/bands", label: "Bands" },
-    { href: "/ai-demo", label: "AI Demo" },
     { href: "/safety", label: "Safety" },
     { href: "/faq", label: "FAQ" },
   ]
@@ -23,7 +28,8 @@ export function Nav() {
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <span className="font-comfortaa text-xl font-bold">Waypoint</span>
+          <span className="font-comfortaa text-xl font-bold tracking-tight">Waypoint</span>
+          <span className="hidden text-xs uppercase tracking-[0.3em] text-muted-foreground/70 sm:inline">Connection Engine</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -32,12 +38,17 @@ export function Nav() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {item.label}
             </Link>
           ))}
-          <Button className="bg-accent text-accent-foreground hover:bg-accent/90">Join the Beta</Button>
+          <Button
+            className="bg-accent text-accent-foreground hover:bg-accent/90"
+            onClick={() => setWaitlistOpen(true)}
+          >
+            Join the Beta
+          </Button>
         </div>
 
         {/* Mobile Navigation */}
@@ -55,18 +66,27 @@ export function Nav() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.label}
                   </Link>
                 ))}
-                <Button className="bg-accent text-accent-foreground hover:bg-accent/90 mt-4">Join the Beta</Button>
+                <Button
+                  className="bg-accent text-accent-foreground hover:bg-accent/90 mt-4"
+                  onClick={() => {
+                    setIsOpen(false)
+                    setWaitlistOpen(true)
+                  }}
+                >
+                  Join the Beta
+                </Button>
               </div>
             </SheetContent>
           </Sheet>
         </div>
       </div>
+      <WaitlistDialog open={waitlistOpen} onOpenChange={setWaitlistOpen} initialMode="Discover" />
     </nav>
   )
 }

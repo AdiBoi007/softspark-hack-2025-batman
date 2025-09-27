@@ -8,48 +8,146 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { toast } from "sonner"
+import { triggerConfetti } from "@/lib/confetti"
 
 interface WaitlistDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  initialMode?: string
+  initialCategories?: string[]
+  initialCrewId?: string
 }
 
-export function WaitlistDialog({ open, onOpenChange }: WaitlistDialogProps) {
+const categoryOptions = [
+  { label: "Nightlife", value: "nightlife" },
+  { label: "Restaurants", value: "restaurant" },
+  { label: "Cafés", value: "cafe" },
+  { label: "Beaches", value: "beach" },
+  { label: "Outdoors", value: "outdoor" },
+  { label: "Events", value: "event" },
+  { label: "Travel", value: "travel" },
+  { label: "Shops & Retail", value: "retail" },
+  { label: "Study / Cowork", value: "cowork" },
+]
+
+const interestOptions = [
+  "Sunrise Swims",
+  "Third-Wave Coffee",
+  "Design Districts",
+  "Jazz Nights",
+  "Trail Runs",
+  "Thrift Crawls",
+  "Late-Night Eats",
+  "Live Gigs",
+]
+
+export function WaitlistDialog({ open, onOpenChange, initialMode, initialCategories, initialCrewId }: WaitlistDialogProps) {
+  const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     name: "",
     city: "",
     ageRange: "",
-    vibes: [] as string[],
+    interests: [] as string[],
     budget: "",
     availability: "",
-    mode: "",
+    mode: initialMode ?? "",
+    categories: initialCategories ?? [],
+    campus: "",
+    degree: "",
+    year: "",
+    idealDays: "",
+    crewId: initialCrewId ?? "",
   })
 
-  const vibeOptions = [
-    "Rooftop",
-    "Cocktails",
-    "Techno",
-    "Hip-Hop",
-    "Live Music",
-    "Dive Bars",
-    "Chill Pubs",
-    "Late-night Eats",
-  ]
+  const normalizedCategories = useMemo(() => {
+    if (!initialCategories?.length) return []
+    const mapping: Record<string, string> = {
+      Nightlife: "nightlife",
+      Restaurants: "restaurant",
+      "Cafés": "cafe",
+      Beaches: "beach",
+      Outdoors: "outdoor",
+      Events: "event",
+      Travel: "travel",
+      Shops: "retail",
+      "Study/Cowork": "cowork",
+      "Shops & Retail": "retail",
+    }
+    return initialCategories.map((item) => mapping[item] ?? item.toLowerCase())
+  }, [initialCategories])
 
-  const handleVibeChange = (vibe: string, checked: boolean) => {
+  useEffect(() => {
+    if (!open) return
+
     setFormData((prev) => ({
       ...prev,
-      vibes: checked ? [...prev.vibes, vibe] : prev.vibes.filter((v) => v !== vibe),
+      mode: initialMode ?? prev.mode ?? "",
+      categories: normalizedCategories.length ? normalizedCategories : prev.categories,
+      crewId: initialCrewId ?? prev.crewId ?? "",
+    }))
+  }, [open, initialMode, normalizedCategories, initialCrewId])
+
+  useEffect(() => {
+    if (open) return
+    setFormData({
+      email: "",
+      name: "",
+      city: "",
+      ageRange: "",
+      interests: [],
+      budget: "",
+      availability: "",
+      mode: initialMode ?? "",
+      categories: normalizedCategories,
+      campus: "",
+      degree: "",
+      year: "",
+      idealDays: "",
+      crewId: initialCrewId ?? "",
+    })
+  }, [open, initialMode, normalizedCategories, initialCrewId])
+
+  const handleInterestChange = (interest: string, checked: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      interests: checked ? [...prev.interests, interest] : prev.interests.filter((v) => v !== interest),
+    }))
+  }
+
+  const handleCategoryToggle = (category: string, checked: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      categories: checked ? [...prev.categories, category] : prev.categories.filter((c) => c !== category),
     }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement API call
-    console.log("Waitlist submission:", formData)
-    onOpenChange(false)
+    try {
+      setSubmitting(true)
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        throw new Error("Unable to join waitlist right now.")
+      }
+
+      await triggerConfetti()
+      toast.success("You’re on the list. We’ll be in touch soon.")
+      onOpenChange(false)
+    } catch (error) {
+      toast.error((error as Error).message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -108,17 +206,35 @@ export function WaitlistDialog({ open, onOpenChange }: WaitlistDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label>Vibes (select all that apply)</Label>
+            <Label>Categories you want planned</Label>
             <div className="grid grid-cols-2 gap-2">
-              {vibeOptions.map((vibe) => (
-                <div key={vibe} className="flex items-center space-x-2">
+              {categoryOptions.map((category) => (
+                <div key={category.value} className="flex items-center space-x-2">
                   <Checkbox
-                    id={vibe}
-                    checked={formData.vibes.includes(vibe)}
-                    onCheckedChange={(checked) => handleVibeChange(vibe, checked as boolean)}
+                    id={`category-${category.value}`}
+                    checked={formData.categories.includes(category.value)}
+                    onCheckedChange={(checked) => handleCategoryToggle(category.value, checked as boolean)}
                   />
-                  <Label htmlFor={vibe} className="text-sm">
-                    {vibe}
+                  <Label htmlFor={`category-${category.value}`} className="text-sm">
+                    {category.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Interests (select all that apply)</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {interestOptions.map((interest) => (
+                <div key={interest} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={interest}
+                    checked={formData.interests.includes(interest)}
+                    onCheckedChange={(checked) => handleInterestChange(interest, checked as boolean)}
+                  />
+                  <Label htmlFor={interest} className="text-sm">
+                    {interest}
                   </Label>
                 </div>
               ))}
@@ -153,9 +269,10 @@ export function WaitlistDialog({ open, onOpenChange }: WaitlistDialogProps) {
                 <SelectValue placeholder="Select availability" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Tonight">Tonight</SelectItem>
-                <SelectItem value="This Weekend">This Weekend</SelectItem>
-                <SelectItem value="Next Week">Next Week</SelectItem>
+                <SelectItem value="Morning">Morning</SelectItem>
+                <SelectItem value="Afternoon">Afternoon</SelectItem>
+                <SelectItem value="Evening">Evening</SelectItem>
+                <SelectItem value="Late Night">Late Night</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -167,16 +284,63 @@ export function WaitlistDialog({ open, onOpenChange }: WaitlistDialogProps) {
                 <SelectValue placeholder="Select mode" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Friends">Friends</SelectItem>
+                <SelectItem value="Solo">Solo</SelectItem>
                 <SelectItem value="Discover">Discover</SelectItem>
-                <SelectItem value="Blind Date">Blind Date</SelectItem>
+                <SelectItem value="Friends">Friends</SelectItem>
+                <SelectItem value="Uni">Uni</SelectItem>
                 <SelectItem value="Bands">Bands</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-            Join Waitlist
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="campus">Campus (optional)</Label>
+              <Input
+                id="campus"
+                value={formData.campus}
+                onChange={(e) => setFormData((prev) => ({ ...prev, campus: e.target.value }))}
+                placeholder="e.g. NYU, UCLA, UCL"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="year">Year</Label>
+              <Input
+                id="year"
+                value={formData.year}
+                onChange={(e) => setFormData((prev) => ({ ...prev, year: e.target.value }))}
+                placeholder="2025"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="degree">Degree / Focus</Label>
+              <Input
+                id="degree"
+                value={formData.degree}
+                onChange={(e) => setFormData((prev) => ({ ...prev, degree: e.target.value }))}
+                placeholder="Design, CS, Business..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ideal-days">Ideal day(s)</Label>
+              <Input
+                id="ideal-days"
+                value={formData.idealDays}
+                onChange={(e) => setFormData((prev) => ({ ...prev, idealDays: e.target.value }))}
+                placeholder="Fridays, Sunday mornings..."
+              />
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Join Waitlist"}
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">We respect your privacy. No spam, ever.</p>
